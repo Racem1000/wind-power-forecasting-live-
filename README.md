@@ -84,9 +84,8 @@ Open notebooks in order: 01 → 02 → ... → 11
 ## 🌍 Context
 
 This project is part of a larger goal: building an end-to-end wind power forecasting
-system that feeds into VPP dispatch optimization — directly applicable to companies
-like [Dexter Energy](https://dexter.energy) and [emsys VPP](https://emsys-renewables.de).
+system that feeds into VPP dispatch optimization 
 
 ---
 
-*Built by [@Racem1000](https://github.com/Racem1000) · Tunisia → Sweden exchange semester*
+*Built by [@Racem1000](https://github.com/Racem1000) 
