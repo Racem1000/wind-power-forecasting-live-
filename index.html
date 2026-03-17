@@ -6,149 +6,94 @@
 <title>Wind Power Forecast Terminal</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #080c10;
-    --surface: #0d1117;
-    --surface2: #161b22;
-    --surface3: #1c2333;
-    --border: #21262d;
-    --border2: #30363d;
-    --accent: #39d353;
-    --accent2: #58a6ff;
-    --accent3: #f0883e;
-    --accent4: #ff7b72;
-    --text: #e6edf3;
-    --muted: #7d8590;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
-
-  .terminal { padding: 16px; max-width: 1200px; margin: 0 auto; }
-
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 6px; margin-bottom: 12px;
-  }
-  .header-left { display: flex; align-items: center; gap: 12px; }
-  .header-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  .header-title { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 2px; color: var(--text); text-transform: uppercase; }
-  .header-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; }
-  .header-right { display: flex; align-items: center; gap: 20px; }
-  .header-time { font-family: var(--mono); font-size: 11px; color: var(--accent); }
-  .header-links { display: flex; gap: 10px; }
-  .header-link { font-family: var(--mono); font-size: 10px; color: var(--accent2); text-decoration: none; padding: 3px 10px; border: 1px solid var(--border2); border-radius: 3px; transition: all 0.15s; }
-  .header-link:hover { background: rgba(88,166,255,0.1); }
-
-  .controls {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 6px; padding: 14px 16px; margin-bottom: 12px;
-    display: grid; grid-template-columns: repeat(4, 1fr) auto; gap: 16px; align-items: end;
-  }
-  .control-group label { display: block; font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
-  .control-group input[type=range] { width: 100%; accent-color: var(--accent2); cursor: pointer; }
-  .control-value { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--accent2); margin-bottom: 4px; }
-  .run-btn { background: var(--accent); color: #000; border: none; padding: 10px 20px; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 1px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: all 0.15s; white-space: nowrap; }
-  .run-btn:hover { background: #4ae968; transform: translateY(-1px); }
-
-  .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 12px; }
-  .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; position: relative; overflow: hidden; }
-  .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .metric-card.green::before  { background: var(--accent); }
-  .metric-card.blue::before   { background: var(--accent2); }
-  .metric-card.orange::before { background: var(--accent3); }
-  .metric-card.red::before    { background: var(--accent4); }
-  .metric-card.purple::before { background: #bc8cff; }
-  .metric-label { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
-  .metric-value { font-family: var(--mono); font-size: 22px; font-weight: 600; line-height: 1; }
-  .metric-value.green  { color: var(--accent); }
-  .metric-value.blue   { color: var(--accent2); }
-  .metric-value.orange { color: var(--accent3); }
-  .metric-value.red    { color: var(--accent4); }
-  .metric-value.purple { color: #bc8cff; }
-  .metric-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
-
-  .main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 10px; margin-bottom: 10px; }
-  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
-  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .card-title { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
-  .card-badge { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border2); color: var(--muted); }
-  canvas { display: block; }
-
-  .side-panel { display: flex; flex-direction: column; gap: 10px; }
-  .horizon-table { width: 100%; border-collapse: collapse; }
-  .horizon-table th { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--border); }
-  .horizon-table th:first-child { text-align: left; }
-  .horizon-table td { font-family: var(--mono); font-size: 11px; padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--border); color: var(--text); }
-  .horizon-table td:first-child { text-align: left; color: var(--muted); }
-  .horizon-table tr:hover td { background: var(--surface2); }
-  .horizon-table tr.highlight td { color: var(--accent2); }
-
-  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-  .perf-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
-  .perf-row:last-child { border-bottom: none; }
-  .perf-name { font-family: var(--mono); font-size: 11px; }
-  .perf-bar-wrap { flex: 1; margin: 0 12px; height: 3px; background: var(--border2); border-radius: 2px; overflow: hidden; }
-  .perf-bar { height: 100%; border-radius: 2px; }
-  .perf-rmse { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-
-  .feat-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-  .feat-name { font-family: var(--mono); font-size: 10px; color: var(--muted); width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .feat-bar-wrap { flex: 1; height: 4px; background: var(--border2); border-radius: 2px; }
-  .feat-bar { height: 100%; background: var(--accent2); border-radius: 2px; }
-  .feat-val { font-family: var(--mono); font-size: 10px; color: var(--muted); width: 30px; text-align: right; }
-
-  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; margin-top: 10px; }
-  .status-items { display: flex; gap: 20px; }
-  .status-item { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .status-item span { color: var(--accent); }
-
-  .about-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; }
-  .about-section h3 { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
-  .about-section p { font-size: 12px; color: var(--muted); line-height: 1.7; }
-  .about-section ul { list-style: none; }
-  .about-section ul li { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 3px 0; }
-  .about-section ul li::before { content: '→ '; color: var(--accent2); }
-  .result-highlight { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-bottom: 4px; }
-
-  @media (max-width: 900px) {
-    .main-grid { grid-template-columns: 1fr; }
-    .metrics { grid-template-columns: repeat(3, 1fr); }
-    .bottom-grid { grid-template-columns: 1fr; }
-    .controls { grid-template-columns: 1fr 1fr; }
-    .about-card { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 500px) {
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    .about-card { grid-template-columns: 1fr; }
-  }
+:root{--bg:#080c10;--surface:#0d1117;--surface2:#161b22;--border:#21262d;--border2:#30363d;--accent:#39d353;--accent2:#58a6ff;--accent3:#f0883e;--accent4:#ff7b72;--text:#e6edf3;--muted:#7d8590;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+.terminal{padding:16px;max-width:1200px;margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:12px}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.header-title{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase}
+.header-sub{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-time{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.gh-link{font-family:var(--mono);font-size:10px;color:var(--accent2);text-decoration:none;padding:3px 10px;border:1px solid var(--border2);border-radius:3px}
+.gh-link:hover{background:rgba(88,166,255,.1)}
+.controls{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:12px;display:grid;grid-template-columns:repeat(4,1fr) auto;gap:16px;align-items:end}
+.control-group label{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.control-group input[type=range]{width:100%;accent-color:var(--accent2);cursor:pointer}
+.control-value{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--accent2);margin-bottom:4px}
+.run-btn{background:var(--accent);color:#000;border:none;padding:10px 20px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1px;border-radius:4px;cursor:pointer;text-transform:uppercase;transition:all .15s;white-space:nowrap}
+.run-btn:hover{background:#4ae968;transform:translateY(-1px)}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 14px;position:relative;overflow:hidden}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.metric-card.blue::before{background:var(--accent2)}
+.metric-card.green::before{background:var(--accent)}
+.metric-card.orange::before{background:var(--accent3)}
+.metric-card.red::before{background:var(--accent4)}
+.metric-card.purple::before{background:#bc8cff}
+.metric-label{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.metric-value{font-family:var(--mono);font-size:22px;font-weight:600;line-height:1}
+.metric-value.blue{color:var(--accent2)}.metric-value.green{color:var(--accent)}.metric-value.orange{color:var(--accent3)}.metric-value.red{color:var(--accent4)}.metric-value.purple{color:#bc8cff}
+.metric-sub{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px}
+.main-grid{display:grid;grid-template-columns:1fr 300px;gap:10px;margin-bottom:10px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.card-title{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.card-badge{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;border:1px solid var(--border2);color:var(--muted)}
+canvas{display:block}
+.side-panel{display:flex;flex-direction:column;gap:10px}
+.horizon-table{width:100%;border-collapse:collapse}
+.horizon-table th{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;text-align:right;padding:4px 8px;border-bottom:1px solid var(--border)}
+.horizon-table th:first-child{text-align:left}
+.horizon-table td{font-family:var(--mono);font-size:11px;padding:5px 8px;text-align:right;border-bottom:1px solid var(--border);color:var(--text)}
+.horizon-table td:first-child{text-align:left;color:var(--muted)}
+.horizon-table tr:hover td{background:var(--surface2)}
+.horizon-table tr.hl td{color:var(--accent2)}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.perf-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.perf-row:last-child{border-bottom:none}
+.perf-name{font-family:var(--mono);font-size:11px}
+.perf-bar-wrap{flex:1;margin:0 12px;height:3px;background:var(--border2);border-radius:2px;overflow:hidden}
+.perf-bar{height:100%;border-radius:2px}
+.perf-rmse{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.feat-row{display:flex;align-items:center;gap:8px;padding:4px 0}
+.feat-name{font-family:var(--mono);font-size:10px;color:var(--muted);width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feat-bar-wrap{flex:1;height:4px;background:var(--border2);border-radius:2px}
+.feat-bar{height:100%;background:var(--accent2);border-radius:2px}
+.feat-val{font-family:var(--mono);font-size:10px;color:var(--muted);width:30px;text-align:right}
+.about-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px;margin-top:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.about-section h3{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.about-section ul{list-style:none}
+.about-section ul li{font-family:var(--mono);font-size:11px;color:var(--muted);padding:3px 0}
+.about-section ul li::before{content:'→ ';color:var(--accent2)}
+.result-highlight{font-family:var(--mono);font-size:14px;color:var(--accent);margin-bottom:4px;font-weight:600}
+.about-section p{font-size:12px;color:var(--muted);line-height:1.7}
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-top:10px}
+.status-items{display:flex;gap:20px}
+.status-item{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.status-item span{color:var(--accent)}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}.bottom-grid{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}.about-card{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 <div class="terminal">
-
-  <!-- Header -->
   <div class="header">
     <div class="header-left">
       <div class="header-dot"></div>
       <div>
         <div class="header-title">Wind Power Forecast Terminal</div>
-        <div class="header-sub">Germany Onshore · XGBoost Ensemble · Probabilistic P10/P50/P90</div>
+        <div class="header-sub">Germany Onshore · XGBoost Ensemble · P10 / P50 / P90</div>
       </div>
     </div>
     <div class="header-right">
-      <div class="header-links">
-        <a class="header-link" href="https://github.com/YOUR_USERNAME/wind-power-forecasting" target="_blank">GitHub</a>
-        <a class="header-link" href="#about">About</a>
-      </div>
+      <a class="gh-link" href="https://github.com/Racem1000/wind-power-forecasting" target="_blank">GitHub</a>
       <div class="header-time" id="clock">LIVE</div>
     </div>
   </div>
 
-  <!-- Controls -->
   <div class="controls">
     <div class="control-group">
       <label>Wind speed 100m</label>
@@ -173,36 +118,14 @@
     <button class="run-btn" onclick="updateDash()">▶ Run</button>
   </div>
 
-  <!-- Metrics -->
   <div class="metrics">
-    <div class="metric-card blue">
-      <div class="metric-label">+1h P50</div>
-      <div class="metric-value blue" id="m1h">—</div>
-      <div class="metric-sub" id="m1h-band">—</div>
-    </div>
-    <div class="metric-card green">
-      <div class="metric-label">+6h P50</div>
-      <div class="metric-value green" id="m6h">—</div>
-      <div class="metric-sub" id="m6h-band">—</div>
-    </div>
-    <div class="metric-card orange">
-      <div class="metric-label">+12h P50</div>
-      <div class="metric-value orange" id="m12h">—</div>
-      <div class="metric-sub" id="m12h-band">—</div>
-    </div>
-    <div class="metric-card red">
-      <div class="metric-label">+24h P50</div>
-      <div class="metric-value red" id="m24h">—</div>
-      <div class="metric-sub" id="m24h-band">—</div>
-    </div>
-    <div class="metric-card purple">
-      <div class="metric-label">Avg uncertainty</div>
-      <div class="metric-value purple" id="m-unc">—</div>
-      <div class="metric-sub">mean bandwidth MW</div>
-    </div>
+    <div class="metric-card blue"><div class="metric-label">+1h P50</div><div class="metric-value blue" id="m1h">—</div><div class="metric-sub" id="m1h-b">—</div></div>
+    <div class="metric-card green"><div class="metric-label">+6h P50</div><div class="metric-value green" id="m6h">—</div><div class="metric-sub" id="m6h-b">—</div></div>
+    <div class="metric-card orange"><div class="metric-label">+12h P50</div><div class="metric-value orange" id="m12h">—</div><div class="metric-sub" id="m12h-b">—</div></div>
+    <div class="metric-card red"><div class="metric-label">+24h P50</div><div class="metric-value red" id="m24h">—</div><div class="metric-sub" id="m24h-b">—</div></div>
+    <div class="metric-card purple"><div class="metric-label">Avg uncertainty</div><div class="metric-value purple" id="m-unc">—</div><div class="metric-sub">mean bandwidth MW</div></div>
   </div>
 
-  <!-- Main chart + side -->
   <div class="main-grid">
     <div class="chart-card">
       <div class="card-header">
@@ -216,45 +139,23 @@
         <div class="card-header"><span class="card-title">Horizon breakdown</span></div>
         <table class="horizon-table">
           <thead><tr><th>Horizon</th><th>P10</th><th>P50</th><th>P90</th></tr></thead>
-          <tbody id="horizon-tbody"></tbody>
+          <tbody id="htbody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- Bottom -->
   <div class="bottom-grid">
     <div class="chart-card">
       <div class="card-header"><span class="card-title">Model comparison (RMSE)</span></div>
       <div>
-        <div class="perf-row">
-          <span class="perf-name" style="color:var(--muted)">Persistence</span>
-          <div class="perf-bar-wrap"><div class="perf-bar" style="width:100%;background:var(--border2)"></div></div>
-          <span class="perf-rmse">958 MW</span>
-        </div>
-        <div class="perf-row">
-          <span class="perf-name" style="color:var(--accent2)">XGBoost</span>
-          <div class="perf-bar-wrap"><div class="perf-bar" style="width:88%;background:var(--accent2)"></div></div>
-          <span class="perf-rmse" style="color:var(--accent2)">843 MW</span>
-        </div>
-        <div class="perf-row">
-          <span class="perf-name" style="color:var(--accent3)">LightGBM</span>
-          <div class="perf-bar-wrap"><div class="perf-bar" style="width:91%;background:var(--accent3)"></div></div>
-          <span class="perf-rmse" style="color:var(--accent3)">879 MW</span>
-        </div>
-        <div class="perf-row">
-          <span class="perf-name" style="color:var(--accent)">Ensemble ✓</span>
-          <div class="perf-bar-wrap"><div class="perf-bar" style="width:87%;background:var(--accent)"></div></div>
-          <span class="perf-rmse" style="color:var(--accent)">842 MW</span>
-        </div>
-        <div class="perf-row">
-          <span class="perf-name" style="color:#bc8cff">LSTM</span>
-          <div class="perf-bar-wrap"><div class="perf-bar" style="width:100%;background:#bc8cff"></div></div>
-          <span class="perf-rmse" style="color:#bc8cff">964 MW</span>
-        </div>
+        <div class="perf-row"><span class="perf-name" style="color:var(--muted)">Persistence</span><div class="perf-bar-wrap"><div class="perf-bar" style="width:100%;background:var(--border2)"></div></div><span class="perf-rmse">958 MW</span></div>
+        <div class="perf-row"><span class="perf-name" style="color:var(--accent2)">XGBoost</span><div class="perf-bar-wrap"><div class="perf-bar" style="width:88%;background:var(--accent2)"></div></div><span class="perf-rmse" style="color:var(--accent2)">843 MW</span></div>
+        <div class="perf-row"><span class="perf-name" style="color:var(--accent3)">LightGBM</span><div class="perf-bar-wrap"><div class="perf-bar" style="width:91%;background:var(--accent3)"></div></div><span class="perf-rmse" style="color:var(--accent3">879 MW</span></div>
+        <div class="perf-row"><span class="perf-name" style="color:var(--accent)">Ensemble ✓</span><div class="perf-bar-wrap"><div class="perf-bar" style="width:87%;background:var(--accent)"></div></div><span class="perf-rmse" style="color:var(--accent)">842 MW</span></div>
+        <div class="perf-row"><span class="perf-name" style="color:#bc8cff">LSTM</span><div class="perf-bar-wrap"><div class="perf-bar" style="width:100%;background:#bc8cff"></div></div><span class="perf-rmse" style="color:#bc8cff">964 MW</span></div>
       </div>
     </div>
-
     <div class="chart-card">
       <div class="card-header"><span class="card-title">SHAP feature importance</span></div>
       <div>
@@ -270,255 +171,134 @@
         <div class="feat-row"><span class="feat-name">dayofweek</span><div class="feat-bar-wrap"><div class="feat-bar" style="width:0.5%"></div></div><span class="feat-val">31</span></div>
       </div>
     </div>
-
     <div class="chart-card">
-      <div class="card-header"><span class="card-title">Accuracy degradation by horizon</span></div>
+      <div class="card-header"><span class="card-title">Accuracy degradation</span></div>
       <canvas id="horizon-chart" height="170"></canvas>
     </div>
   </div>
 
-  <!-- About -->
-  <div class="about-card" id="about">
+  <div class="about-card">
     <div class="about-section">
       <h3>Headline result</h3>
       <div class="result-highlight">+12.1% vs baseline</div>
-      <div class="result-highlight">~€34.3M savings/yr</div>
-      <p>XGBoost ensemble outperformed the persistence baseline on German onshore wind 2019 data, equivalent to €34.3M estimated annual imbalance cost reduction.</p>
+      <div class="result-highlight">~€34.3M/year</div>
+      <p>XGBoost ensemble on German onshore wind 2019. Equivalent to €34.3M estimated annual imbalance cost reduction.</p>
     </div>
     <div class="about-section">
       <h3>System</h3>
-      <ul>
-        <li>8,592 hourly samples</li>
-        <li>20 engineered features</li>
-        <li>5 models benchmarked</li>
-        <li>78.3% calibrated coverage</li>
-        <li>24 horizon models</li>
-        <li>Auto-retraining pipeline</li>
-      </ul>
+      <ul><li>8,592 hourly samples</li><li>20 engineered features</li><li>5 models benchmarked</li><li>78.3% calibrated coverage</li><li>24 horizon models</li><li>Auto-retraining pipeline</li></ul>
     </div>
     <div class="about-section">
       <h3>Data sources</h3>
-      <ul>
-        <li>Open Power System Data</li>
-        <li>Open-Meteo ERA5 archive</li>
-        <li>Germany 2019 onshore wind</li>
-        <li>Hourly resolution</li>
-      </ul>
+      <ul><li>Open Power System Data</li><li>Open-Meteo ERA5</li><li>Germany 2019 onshore</li><li>Hourly resolution</li></ul>
     </div>
     <div class="about-section">
       <h3>Stack</h3>
-      <ul>
-        <li>Python · pandas · numpy</li>
-        <li>XGBoost · LightGBM</li>
-        <li>TensorFlow · SHAP</li>
-        <li>Conformal prediction</li>
-        <li>FastAPI · REST API</li>
-      </ul>
+      <ul><li>XGBoost · LightGBM</li><li>TensorFlow · SHAP</li><li>Conformal prediction</li><li>FastAPI · REST API</li><li>GitHub Pages</li></ul>
     </div>
   </div>
 
-  <!-- Status bar -->
   <div class="status-bar">
     <div class="status-items">
-      <div class="status-item">MODEL <span>XGBoost Ensemble (0.8 XGB / 0.2 LGBM)</span></div>
+      <div class="status-item">MODEL <span>XGBoost Ensemble (0.8/0.2)</span></div>
       <div class="status-item">COVERAGE <span>78.3%</span></div>
       <div class="status-item">BEST RMSE <span>842 MW</span></div>
       <div class="status-item">ECONOMIC VALUE <span>~€34.3M/yr</span></div>
     </div>
-    <div class="status-item">RETRAINING <span>STABLE · 10 events logged · RMSE improved 51%</span></div>
+    <div class="status-item">RETRAINING <span>STABLE · 10 events · 51% RMSE improvement</span></div>
   </div>
-
 </div>
 
 <script>
-const MONTHS = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-function generateForecast(windSpeed, windDir, hour, month) {
-  const seasonFactor = Math.cos((month - 7) * Math.PI / 6) * 0.3 + 0.7;
-  const windFactor   = Math.pow(Math.min(windSpeed / 12, 1.0), 1.8);
-  const basepower    = 35000 * windFactor * seasonFactor;
-  const forecasts    = [];
-
-  for (let h = 1; h <= 24; h++) {
-    const hourAhead = (hour + h) % 24;
-    const hf        = 1 + Math.sin((hourAhead - 8) * Math.PI / 12) * 0.08;
-    const noise     = 1 + (Math.random() - 0.5) * 0.03 * Math.sqrt(h);
-    const p50       = Math.max(500, basepower * hf * noise);
-    const unc       = 0.10 + (h / 24) * 0.22;
-    forecasts.push({
-      h,
-      p50: Math.round(p50),
-      p10: Math.round(Math.max(0, p50 * (1 - unc))),
-      p90: Math.round(p50 * (1 + unc)),
-    });
+const MONTHS=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function generateForecast(ws,wd,hr,mo){
+  const sf=Math.cos((mo-7)*Math.PI/6)*0.3+0.7;
+  const wf=Math.pow(Math.min(ws/12,1.0),1.8);
+  const base=35000*wf*sf;
+  const fc=[];
+  for(let h=1;h<=24;h++){
+    const ha=(hr+h)%24;
+    const hf=1+Math.sin((ha-8)*Math.PI/12)*0.08;
+    const n=1+(Math.random()-0.5)*0.03*Math.sqrt(h);
+    const p50=Math.max(500,base*hf*n);
+    const unc=0.10+(h/24)*0.22;
+    fc.push({h,p50:Math.round(p50),p10:Math.round(Math.max(0,p50*(1-unc))),p90:Math.round(p50*(1+unc))});
   }
-  return forecasts;
+  return fc;
 }
-
-function drawForecastChart(forecasts) {
-  const container = document.getElementById('forecast-chart').parentElement;
-  const W = container.clientWidth - 32;
-  const H = 220;
-  const canvas = document.getElementById('forecast-chart');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  const pad = { top: 16, right: 16, bottom: 28, left: 60 };
-  const cw  = W - pad.left - pad.right;
-  const ch  = H - pad.top - pad.bottom;
-  ctx.clearRect(0, 0, W, H);
-
-  const allVals = forecasts.flatMap(f => [f.p10, f.p90]);
-  const minV    = Math.max(0, Math.min(...allVals) * 0.9);
-  const maxV    = Math.max(...allVals) * 1.05;
-  const toX     = h => pad.left + ((h - 1) / 23) * cw;
-  const toY     = v => pad.top + ch - ((v - minV) / (maxV - minV)) * ch;
-
-  for (let i = 0; i <= 5; i++) {
-    const v = minV + (maxV - minV) * (i / 5);
-    const y = toY(v);
-    ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
-    ctx.fillStyle = '#7d8590'; ctx.font = '9px IBM Plex Mono'; ctx.textAlign = 'right';
-    ctx.fillText((v / 1000).toFixed(0) + 'k', pad.left - 6, y + 3);
-  }
-
-  ctx.beginPath();
-  forecasts.forEach((f, i) => i === 0 ? ctx.moveTo(toX(f.h), toY(f.p90)) : ctx.lineTo(toX(f.h), toY(f.p90)));
-  for (let i = forecasts.length - 1; i >= 0; i--) ctx.lineTo(toX(forecasts[i].h), toY(forecasts[i].p10));
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(88,166,255,0.12)'; ctx.fill();
-
-  ['p10','p90'].forEach(key => {
-    ctx.beginPath();
-    forecasts.forEach((f, i) => i === 0 ? ctx.moveTo(toX(f.h), toY(f[key])) : ctx.lineTo(toX(f.h), toY(f[key])));
-    ctx.strokeStyle = 'rgba(88,166,255,0.35)'; ctx.lineWidth = 1;
-    ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]);
-  });
-
-  ctx.beginPath();
-  forecasts.forEach((f, i) => i === 0 ? ctx.moveTo(toX(f.h), toY(f.p50)) : ctx.lineTo(toX(f.h), toY(f.p50)));
-  ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 2.5; ctx.stroke();
-
-  [1, 6, 12, 18, 24].forEach(h => {
-    const f = forecasts[h - 1];
-    ctx.beginPath(); ctx.arc(toX(f.h), toY(f.p50), 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#58a6ff'; ctx.fill();
-    ctx.strokeStyle = '#0d1117'; ctx.lineWidth = 1.5; ctx.stroke();
-  });
-
-  ctx.fillStyle = '#7d8590'; ctx.font = '9px IBM Plex Mono'; ctx.textAlign = 'center';
-  [1, 4, 8, 12, 16, 20, 24].forEach(h => ctx.fillText('+' + h + 'h', toX(h), H - 8));
-
-  const lx = pad.left + 8, ly = pad.top + 8;
-  ctx.fillStyle = 'rgba(88,166,255,0.2)'; ctx.fillRect(lx, ly, 16, 8);
-  ctx.fillStyle = '#7d8590'; ctx.font = '9px IBM Plex Mono'; ctx.textAlign = 'left';
-  ctx.fillText('P10–P90', lx + 20, ly + 7);
-  ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 2; ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(lx + 90, ly + 4); ctx.lineTo(lx + 106, ly + 4); ctx.stroke();
-  ctx.fillText('P50', lx + 110, ly + 7);
+function drawForecastChart(fc){
+  const container=document.getElementById('forecast-chart').parentElement;
+  const W=container.clientWidth-32,H=220;
+  const cv=document.getElementById('forecast-chart');
+  cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  const pad={top:16,right:16,bottom:28,left:60};
+  const cw=W-pad.left-pad.right,ch=H-pad.top-pad.bottom;
+  ctx.clearRect(0,0,W,H);
+  const all=fc.flatMap(f=>[f.p10,f.p90]);
+  const minV=Math.max(0,Math.min(...all)*0.9),maxV=Math.max(...all)*1.05;
+  const toX=h=>pad.left+((h-1)/23)*cw;
+  const toY=v=>pad.top+ch-((v-minV)/(maxV-minV))*ch;
+  for(let i=0;i<=5;i++){const v=minV+(maxV-minV)*(i/5);const y=toY(v);ctx.strokeStyle='#21262d';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#7d8590';ctx.font='9px IBM Plex Mono';ctx.textAlign='right';ctx.fillText((v/1000).toFixed(0)+'k',pad.left-6,y+3);}
+  ctx.beginPath();fc.forEach((f,i)=>i===0?ctx.moveTo(toX(f.h),toY(f.p90)):ctx.lineTo(toX(f.h),toY(f.p90)));for(let i=fc.length-1;i>=0;i--)ctx.lineTo(toX(fc[i].h),toY(fc[i].p10));ctx.closePath();ctx.fillStyle='rgba(88,166,255,0.12)';ctx.fill();
+  ['p10','p90'].forEach(k=>{ctx.beginPath();fc.forEach((f,i)=>i===0?ctx.moveTo(toX(f.h),toY(f[k])):ctx.lineTo(toX(f.h),toY(f[k])));ctx.strokeStyle='rgba(88,166,255,0.35)';ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);});
+  ctx.beginPath();fc.forEach((f,i)=>i===0?ctx.moveTo(toX(f.h),toY(f.p50)):ctx.lineTo(toX(f.h),toY(f.p50)));ctx.strokeStyle='#58a6ff';ctx.lineWidth=2.5;ctx.stroke();
+  [1,6,12,18,24].forEach(h=>{const f=fc[h-1];ctx.beginPath();ctx.arc(toX(f.h),toY(f.p50),4,0,Math.PI*2);ctx.fillStyle='#58a6ff';ctx.fill();ctx.strokeStyle='#0d1117';ctx.lineWidth=1.5;ctx.stroke();});
+  ctx.fillStyle='#7d8590';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';[1,4,8,12,16,20,24].forEach(h=>ctx.fillText('+'+h+'h',toX(h),H-8));
+  const lx=pad.left+8,ly=pad.top+8;ctx.fillStyle='rgba(88,166,255,0.2)';ctx.fillRect(lx,ly,16,8);ctx.fillStyle='#7d8590';ctx.font='9px IBM Plex Mono';ctx.textAlign='left';ctx.fillText('P10–P90',lx+20,ly+7);ctx.strokeStyle='#58a6ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(lx+90,ly+4);ctx.lineTo(lx+106,ly+4);ctx.stroke();ctx.fillText('P50',lx+110,ly+7);
 }
-
-function initHorizonChart() {
-  const canvas = document.getElementById('horizon-chart');
-  const W = canvas.parentElement.clientWidth - 32;
-  canvas.width = W; canvas.height = 170;
-  const ctx = canvas.getContext('2d');
-  const pad = { top: 10, right: 16, bottom: 28, left: 48 };
-  const cw  = W - pad.left - pad.right;
-  const ch  = canvas.height - pad.top - pad.bottom;
-  ctx.clearRect(0, 0, W, canvas.height);
-
-  const labels = ['+1h','+3h','+6h','+9h','+12h','+15h','+18h','+21h','+24h'];
-  const values = [1687, 2890, 4937, 6200, 7402, 7900, 8300, 8500, 8642];
-  const minV = 0, maxV = 10000;
-  const xs = labels.map((_, i) => pad.left + (i / (labels.length - 1)) * cw);
-  const ys = values.map(v => pad.top + ch - ((v - minV) / (maxV - minV)) * ch);
-
-  [2000,4000,6000,8000].forEach(v => {
-    const y = pad.top + ch - ((v - minV) / (maxV - minV)) * ch;
-    ctx.strokeStyle = '#21262d'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cw, y); ctx.stroke();
-    ctx.fillStyle = '#7d8590'; ctx.font = '9px IBM Plex Mono'; ctx.textAlign = 'right';
-    ctx.fillText((v/1000).toFixed(0)+'k', pad.left - 6, y + 3);
-  });
-
-  ctx.beginPath();
-  ctx.moveTo(xs[0], pad.top + ch);
-  xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
-  ctx.lineTo(xs[xs.length-1], pad.top + ch);
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(88,166,255,0.08)'; ctx.fill();
-
-  ctx.beginPath();
-  xs.forEach((x, i) => i === 0 ? ctx.moveTo(x, ys[i]) : ctx.lineTo(x, ys[i]));
-  ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 2; ctx.stroke();
-
-  xs.forEach((x, i) => {
-    ctx.beginPath(); ctx.arc(x, ys[i], 3, 0, Math.PI * 2);
-    ctx.fillStyle = '#58a6ff'; ctx.fill();
-  });
-
-  ctx.fillStyle = '#7d8590'; ctx.font = '9px IBM Plex Mono'; ctx.textAlign = 'center';
-  xs.forEach((x, i) => { if (i % 2 === 0) ctx.fillText(labels[i], x, canvas.height - 8); });
+function initHorizonChart(){
+  const cv=document.getElementById('horizon-chart');
+  const W=cv.parentElement.clientWidth-32;cv.width=W;cv.height=170;
+  const ctx=cv.getContext('2d');
+  const pad={top:10,right:16,bottom:28,left:48};
+  const cw=W-pad.left-pad.right,ch=cv.height-pad.top-pad.bottom;
+  ctx.clearRect(0,0,W,cv.height);
+  const labels=['+1h','+3h','+6h','+9h','+12h','+15h','+18h','+21h','+24h'];
+  const values=[1687,2890,4937,6200,7402,7900,8300,8500,8642];
+  const minV=0,maxV=10000;
+  const xs=labels.map((_,i)=>pad.left+(i/(labels.length-1))*cw);
+  const ys=values.map(v=>pad.top+ch-((v-minV)/(maxV-minV))*ch);
+  [2000,4000,6000,8000].forEach(v=>{const y=pad.top+ch-((v-minV)/(maxV-minV))*ch;ctx.strokeStyle='#21262d';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();ctx.fillStyle='#7d8590';ctx.font='9px IBM Plex Mono';ctx.textAlign='right';ctx.fillText((v/1000).toFixed(0)+'k',pad.left-6,y+3);});
+  ctx.beginPath();ctx.moveTo(xs[0],pad.top+ch);xs.forEach((x,i)=>ctx.lineTo(x,ys[i]));ctx.lineTo(xs[xs.length-1],pad.top+ch);ctx.closePath();ctx.fillStyle='rgba(88,166,255,0.08)';ctx.fill();
+  ctx.beginPath();xs.forEach((x,i)=>i===0?ctx.moveTo(x,ys[i]):ctx.lineTo(x,ys[i]));ctx.strokeStyle='#58a6ff';ctx.lineWidth=2;ctx.stroke();
+  xs.forEach((x,i)=>{ctx.beginPath();ctx.arc(x,ys[i],3,0,Math.PI*2);ctx.fillStyle='#58a6ff';ctx.fill();});
+  ctx.fillStyle='#7d8590';ctx.font='9px IBM Plex Mono';ctx.textAlign='center';xs.forEach((x,i)=>{if(i%2===0)ctx.fillText(labels[i],x,cv.height-8);});
 }
-
-function updateMetrics(forecasts) {
-  const get = h => forecasts[h - 1];
-  const fmt = v => (v / 1000).toFixed(1) + 'k';
-  document.getElementById('m1h').textContent  = fmt(get(1).p50) + ' MW';
-  document.getElementById('m6h').textContent  = fmt(get(6).p50) + ' MW';
-  document.getElementById('m12h').textContent = fmt(get(12).p50) + ' MW';
-  document.getElementById('m24h').textContent = fmt(get(24).p50) + ' MW';
-  document.getElementById('m1h-band').textContent  = fmt(get(1).p10)  + ' – ' + fmt(get(1).p90)  + ' MW';
-  document.getElementById('m6h-band').textContent  = fmt(get(6).p10)  + ' – ' + fmt(get(6).p90)  + ' MW';
-  document.getElementById('m12h-band').textContent = fmt(get(12).p10) + ' – ' + fmt(get(12).p90) + ' MW';
-  document.getElementById('m24h-band').textContent = fmt(get(24).p10) + ' – ' + fmt(get(24).p90) + ' MW';
-  const avgBand = forecasts.reduce((s, f) => s + (f.p90 - f.p10), 0) / 24;
-  document.getElementById('m-unc').textContent = Math.round(avgBand / 100) * 100 + ' MW';
+function updateMetrics(fc){
+  const g=h=>fc[h-1];const fmt=v=>(v/1000).toFixed(1)+'k';
+  document.getElementById('m1h').textContent=fmt(g(1).p50)+' MW';
+  document.getElementById('m6h').textContent=fmt(g(6).p50)+' MW';
+  document.getElementById('m12h').textContent=fmt(g(12).p50)+' MW';
+  document.getElementById('m24h').textContent=fmt(g(24).p50)+' MW';
+  document.getElementById('m1h-b').textContent=fmt(g(1).p10)+' – '+fmt(g(1).p90)+' MW';
+  document.getElementById('m6h-b').textContent=fmt(g(6).p10)+' – '+fmt(g(6).p90)+' MW';
+  document.getElementById('m12h-b').textContent=fmt(g(12).p10)+' – '+fmt(g(12).p90)+' MW';
+  document.getElementById('m24h-b').textContent=fmt(g(24).p10)+' – '+fmt(g(24).p90)+' MW';
+  const avg=fc.reduce((s,f)=>s+(f.p90-f.p10),0)/24;
+  document.getElementById('m-unc').textContent=Math.round(avg/100)*100+' MW';
 }
-
-function updateTable(forecasts) {
-  const tbody = document.getElementById('horizon-tbody');
-  const keys  = [1, 3, 6, 9, 12, 15, 18, 21, 24];
-  tbody.innerHTML = keys.map(h => {
-    const f   = forecasts[h - 1];
-    const cls = [6, 12, 24].includes(h) ? 'highlight' : '';
-    return `<tr class="${cls}"><td>+${h}h</td><td>${(f.p10/1000).toFixed(1)}k</td><td>${(f.p50/1000).toFixed(1)}k</td><td>${(f.p90/1000).toFixed(1)}k</td></tr>`;
-  }).join('');
+function updateTable(fc){
+  const tbody=document.getElementById('htbody');
+  const keys=[1,3,6,9,12,15,18,21,24];
+  tbody.innerHTML=keys.map(h=>{const f=fc[h-1];const cls=[6,12,24].includes(h)?'hl':'';return`<tr class="${cls}"><td>+${h}h</td><td>${(f.p10/1000).toFixed(1)}k</td><td>${(f.p50/1000).toFixed(1)}k</td><td>${(f.p90/1000).toFixed(1)}k</td></tr>`;}).join('');
 }
-
-function updateDash() {
-  const ws = parseFloat(document.getElementById('wind-speed').value);
-  const wd = parseInt(document.getElementById('wind-dir').value);
-  const hr = parseInt(document.getElementById('hour').value);
-  const mo = parseInt(document.getElementById('month').value);
-  document.getElementById('ws-val').textContent = ws.toFixed(1) + ' m/s';
-  document.getElementById('wd-val').textContent = wd + '°';
-  document.getElementById('hr-val').textContent = String(hr).padStart(2,'0') + ':00';
-  document.getElementById('mo-val').textContent = MONTHS[mo];
-  const forecasts = generateForecast(ws, wd, hr, mo);
-  drawForecastChart(forecasts);
-  updateMetrics(forecasts);
-  updateTable(forecasts);
+function updateDash(){
+  const ws=parseFloat(document.getElementById('wind-speed').value);
+  const wd=parseInt(document.getElementById('wind-dir').value);
+  const hr=parseInt(document.getElementById('hour').value);
+  const mo=parseInt(document.getElementById('month').value);
+  document.getElementById('ws-val').textContent=ws.toFixed(1)+' m/s';
+  document.getElementById('wd-val').textContent=wd+'°';
+  document.getElementById('hr-val').textContent=String(hr).padStart(2,'0')+':00';
+  document.getElementById('mo-val').textContent=MONTHS[mo];
+  const fc=generateForecast(ws,wd,hr,mo);
+  drawForecastChart(fc);updateMetrics(fc);updateTable(fc);
 }
-
-function updateClock() {
-  document.getElementById('clock').textContent = new Date().toUTCString().slice(17,25) + ' UTC';
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-window.addEventListener('load', () => {
-  setTimeout(() => { initHorizonChart(); updateDash(); }, 100);
-});
-window.addEventListener('resize', () => {
-  initHorizonChart();
-  const ws = parseFloat(document.getElementById('wind-speed').value);
-  const wd = parseInt(document.getElementById('wind-dir').value);
-  const hr = parseInt(document.getElementById('hour').value);
-  const mo = parseInt(document.getElementById('month').value);
-  drawForecastChart(generateForecast(ws, wd, hr, mo));
-});
+function updateClock(){document.getElementById('clock').textContent=new Date().toUTCString().slice(17,25)+' UTC';}
+setInterval(updateClock,1000);updateClock();
+window.addEventListener('load',()=>{setTimeout(()=>{initHorizonChart();updateDash();},100);});
+window.addEventListener('resize',()=>{initHorizonChart();const ws=parseFloat(document.getElementById('wind-speed').value);const wd=parseInt(document.getElementById('wind-dir').value);const hr=parseInt(document.getElementById('hour').value);const mo=parseInt(document.getElementById('month').value);drawForecastChart(generateForecast(ws,wd,hr,mo));});
 </script>
 </body>
 </html>
