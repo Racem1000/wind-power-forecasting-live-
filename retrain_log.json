@@ -1,0 +1,62 @@
+[
+  {
+    "timestamp": "2026-03-17 17:09",
+    "trained_on": 6696,
+    "val_rmse": 574.1,
+    "val_coverage": 99.7
+  },
+  {
+    "timestamp": "2026-03-17 17:09",
+    "trained_on": 6864,
+    "val_rmse": 589.0,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:10",
+    "trained_on": 7105,
+    "val_rmse": 598.6,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:10",
+    "trained_on": 7273,
+    "val_rmse": 616.8,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:10",
+    "trained_on": 7441,
+    "val_rmse": 453.6,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:10",
+    "trained_on": 7609,
+    "val_rmse": 548.8,
+    "val_coverage": 99.7
+  },
+  {
+    "timestamp": "2026-03-17 17:10",
+    "trained_on": 7825,
+    "val_rmse": 458.0,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:10",
+    "trained_on": 7993,
+    "val_rmse": 446.5,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:11",
+    "trained_on": 8161,
+    "val_rmse": 487.2,
+    "val_coverage": 100.0
+  },
+  {
+    "timestamp": "2026-03-17 17:11",
+    "trained_on": 8329,
+    "val_rmse": 551.4,
+    "val_coverage": 100.0
+  }
+]
